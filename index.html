@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>家具推广图生成器</title>
+<style>
+:root{--bg:#0d1117;--card:#161b22;--border:#30363d;--accent:#58a6ff;--green:#3fb950;--text:#e6edf3;--dim:#8b949e}
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:var(--bg);color:var(--text);font-family:-apple-system,BlinkMacSystemFont,"PingFang SC","Microsoft YaHei",sans-serif;min-height:100vh}
+header{padding:24px 40px;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px}
+header h1{font-size:20px;font-weight:600}header h1 span{color:var(--accent)}
+.container{max-width:900px;margin:0 auto;padding:40px 20px}
+.upload-zone{border:2px dashed var(--border);border-radius:12px;padding:60px 20px;text-align:center;cursor:pointer;transition:all .2s;margin-bottom:16px}
+.upload-zone:hover,.drag{border-color:var(--accent);background:rgba(88,166,255,0.03)}
+.upload-zone .icon{font-size:48px;margin-bottom:8px}
+.upload-zone .title{font-size:16px;font-weight:500;margin-bottom:4px}
+.upload-zone .hint{font-size:13px;color:var(--dim)}
+.upload-zone input{display:none}
+.preview-row{display:flex;gap:12px;margin-bottom:20px;flex-wrap:wrap}
+.preview-card{flex:1;min-width:180px;background:var(--card);border:1px solid var(--border);border-radius:8px;padding:10px;text-align:center}
+.preview-card img{max-width:100%;max-height:180px;border-radius:4px;object-fit:contain}
+.preview-card .label{font-size:12px;color:var(--dim);margin-top:6px}
+.items-editor{background:var(--card);border:1px solid var(--border);border-radius:8px;padding:20px;margin-bottom:20px}
+.items-editor h3{font-size:15px;margin-bottom:12px;font-weight:500}
+.item-row{display:flex;gap:8px;align-items:center;margin-bottom:8px;flex-wrap:wrap}
+.item-row input{background:var(--bg);border:1px solid var(--border);color:var(--text);padding:8px 12px;border-radius:6px;font-size:14px;font-family:inherit}
+.item-row .model{flex:2;min-width:100px}
+.item-row .qty{width:60px}
+.item-row .dims{flex:2;min-width:100px}
+.item-row .del{background:none;border:none;color:#f85149;cursor:pointer;font-size:20px;padding:4px 8px}
+.add-btn{background:var(--border);border:none;color:var(--text);padding:6px 16px;border-radius:6px;cursor:pointer;font-size:13px}
+.add-btn:hover{background:var(--accent);color:#fff}
+.btn{background:var(--accent);color:#fff;border:none;padding:14px 40px;border-radius:8px;font-size:16px;font-weight:600;cursor:pointer;width:100%}
+.btn:disabled{opacity:.5;cursor:not-allowed}
+.result{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:24px;margin-top:20px;display:none}
+.result.show{display:block}
+.result img{max-width:100%;border-radius:8px}
+.result .actions{margin-top:16px;display:flex;gap:12px}
+.result .actions a{background:var(--border);color:var(--text);padding:10px 24px;border-radius:6px;text-decoration:none;font-size:14px}
+.status{text-align:center;padding:12px;color:var(--dim);font-size:14px}
+.error{color:#f85149;text-align:center;padding:12px;display:none}
+.error.show{display:block}
+.spin{display:inline-block;width:16px;height:16px;border:2px solid var(--border);border-top-color:var(--accent);border-radius:50%;animation:s .6s linear infinite;margin-right:6px;vertical-align:middle}
+@keyframes s{to{transform:rotate(360deg)}}
+</style>
+</head>
+<body>
+<header>
+  <h1>家具<span>推广图</span>生成器</h1>
+  <span style="color:var(--dim);font-size:13px">上传产品图 → 编辑清单 → 生成办公室布局</span>
+</header>
+<div class="container">
+  <div style="display:flex;gap:16px;flex-wrap:wrap">
+    <div class="upload-zone" id="productZone" style="flex:2">
+      <div class="icon">📦</div>
+      <div class="title">上传产品图</div>
+      <div class="hint">拖拽家具产品目录图</div>
+      <input type="file" id="productInput" accept="image/*">
+    </div>
+    <div class="upload-zone" id="refZone" style="flex:1">
+      <div class="icon">🎨</div>
+      <div class="title">参照图（可选）</div>
+      <div class="hint">办公室风格参考</div>
+      <input type="file" id="refInput" accept="image/*">
+    </div>
+  </div>
+
+  <div class="preview-row" id="previews"></div>
+
+  <div class="items-editor">
+    <h3>📋 家具清单 
+      <button class="add-btn" style="margin-left:12px" onclick="analyzeProduct()" id="analyzeBtn">🔍 AI 识别</button>
+      <span style="font-weight:300;font-size:11px;color:var(--dim);margin-left:8px">或手动编辑</span>
+    </h3>
+    <div id="itemsList"></div>
+    <button class="add-btn" onclick="addItem()">+ 添加</button>
+  </div>
+
+  <button class="btn" id="genBtn" onclick="doGenerate()">生成推广图</button>
+
+  <div class="status" id="status"></div>
+  <div class="error" id="error"></div>
+
+  <div class="result" id="result">
+    <h3 style="margin-bottom:16px;font-weight:500">✅ 生成完成</h3>
+    <img id="resultImg" src="" alt="">
+    <div class="actions">
+      <a id="dlBtn" href="#" download>下载</a>
+      <a href="#" onclick="document.getElementById('result').classList.remove('show')">重新生成</a>
+    </div>
+  </div>
+</div>
+
+<script>
+// Dynamic base URL: use same origin in production
+const BASE = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' 
+    ? 'http://localhost:8892' 
+    : window.location.protocol + '//' + window.location.hostname;
+let productFile = null, refFile = null;
+
+document.getElementById('productZone').onclick = ()=>document.getElementById('productInput').click();
+document.getElementById('refZone').onclick = ()=>document.getElementById('refInput').click();
+
+['productZone','refZone'].forEach(id=>{
+  const el = document.getElementById(id);
+  el.ondragover = e=>{e.preventDefault();el.classList.add('drag')};
+  el.ondragleave = ()=>el.classList.remove('drag');
+  el.ondrop = e=>{e.preventDefault();el.classList.remove('drag');
+    const f = e.dataTransfer.files[0];
+    id==='productZone' ? setProduct(f) : setRef(f);
+  };
+});
+document.getElementById('productInput').onchange = e=>setProduct(e.target.files[0]);
+document.getElementById('refInput').onchange = e=>setRef(e.target.files[0]);
+
+function setProduct(f){productFile=f;updatePreview()}
+function setRef(f){refFile=f;updatePreview()}
+function updatePreview(){
+  const p=document.getElementById('previews');
+  let h='';
+  if(productFile) h+=`<div class="preview-card"><img src="${URL.createObjectURL(productFile)}"><div class="label">产品图</div></div>`;
+  if(refFile) h+=`<div class="preview-card"><img src="${URL.createObjectURL(refFile)}"><div class="label">参照图</div></div>`;
+  p.innerHTML = h;
+}
+
+function getItems(){
+  return Array.from(document.querySelectorAll('.item-row')).map(r=>({
+    model: r.querySelector('.model').value||'furniture',
+    qty: parseInt(r.querySelector('.qty').value)||1,
+    dims: r.querySelector('.dims').value||''
+  }));
+}
+function addItem(m='',q=1,d=''){
+  const div=document.createElement('div');div.className='item-row';
+  div.innerHTML=`<input class="model" placeholder="型号" value="${m}"><input class="qty" type="number" value="${q}" min="1"><input class="dims" placeholder="尺寸(mm)" value="${d}"><button class="del" onclick="this.parentElement.remove()">×</button>`;
+  document.getElementById('itemsList').appendChild(div);
+}
+
+async function analyzeProduct(){
+  if(!productFile) return;
+  const s=document.getElementById('status'), b=document.getElementById('analyzeBtn');
+  s.innerHTML='<span class="spin"></span>识别中...'; b.disabled=true;
+  const fd=new FormData();fd.append('product',productFile);
+  try{
+    const r=await fetch(BASE+'/api/analyze',{method:'POST',body:fd});
+    const d=await r.json();
+    if(!d.ok){s.innerHTML='识别失败';b.disabled=false;return}
+    if(d.items && d.items.length>0 && d.items[0].model!=='furniture'){
+      document.getElementById('itemsList').innerHTML='';
+      d.items.forEach(i=>addItem(i.model||'',i.qty||1,i.dims||''));
+      s.innerHTML='✅ 已识别 '+d.items.length+' 件';
+    }else{
+      s.innerHTML='⚠️ 未能自动识别，请手动编辑';
+    }
+  }catch(e){s.innerHTML='网络错误'}  
+  b.disabled=false;
+}
+
+async function doGenerate(){
+  if(!productFile){alert('请先上传产品图');return}
+  const btn=document.getElementById('genBtn'), s=document.getElementById('status');
+  btn.disabled=true;btn.textContent='生成中...';document.getElementById('error').classList.remove('show');
+  document.getElementById('result').classList.remove('show');
+  s.innerHTML='<span class="spin"></span>AI 正在设计办公室...（约1分钟）';
+
+  const fd=new FormData();
+  fd.append('product',productFile);
+  fd.append('items',JSON.stringify(getItems()));
+  if(refFile) fd.append('reference',refFile);
+  try{
+    const r=await fetch(BASE+'/api/generate',{method:'POST',body:fd});
+    const d=await r.json();
+    if(d.ok){
+      document.getElementById('resultImg').src=d.image_url;
+      document.getElementById('dlBtn').href=d.image_url;
+      document.getElementById('result').classList.add('show');
+      s.innerHTML='✅ 完成';
+    }else{s.innerHTML='';document.getElementById('error').textContent='❌ '+(d.error||'失败');document.getElementById('error').classList.add('show')}
+  }catch(e){s.innerHTML='';document.getElementById('error').textContent='❌ 网络错误';document.getElementById('error').classList.add('show')}
+  btn.disabled=false;btn.textContent='生成推广图';
+}
+
+// Default items
+addItem('1501办公桌',1,'3200*2200*760');
+addItem('D5515皮椅',2,'620*620*990');
+addItem('A5515皮椅',1,'640*640*1180');
+</script>
+</body>
+</html>
