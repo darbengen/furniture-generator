@@ -93,10 +93,12 @@ header h1{font-size:20px;font-weight:600}header h1 span{color:var(--accent)}
 </div>
 
 <script>
-// Dynamic base URL: use same origin in production
+// Dynamic base URL: use same origin in production, VPS API otherwise
 const BASE = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' 
     ? 'http://localhost:8892' 
-    : window.location.protocol + '//' + window.location.hostname;
+    : window.location.hostname.includes('github.io')
+        ? 'http://darben.top'   // VPS API (nginx proxies /api/ to backend)
+        : window.location.protocol + '//' + window.location.hostname;
 let productFile = null, refFile = null;
 
 document.getElementById('productZone').onclick = ()=>document.getElementById('productInput').click();
