@@ -522,11 +522,12 @@ async def webhook_deploy(request: Request):
     expected = "sha256=" + hmac.new(DEPLOY_SECRET.encode(), body, hashlib.sha256).hexdigest()
     if not hmac.compare_digest(signature, expected):
         return JSONResponse(content={"ok": False, "error": "bad signature"}, status_code=403)
-    result = subprocess.run(
+    # Run deploy in background — restarting uvicorn would kill this request
+    subprocess.Popen(
         ["/opt/furniture-generator/deploy.sh"],
-        capture_output=True, text=True, timeout=120
+        stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL
     )
-    return {"ok": result.returncode == 0, "stdout": result.stdout, "stderr": result.stderr}
+    return {"ok": True}
 
 
 # ── Static files ─────────────────────────────────────────────────
