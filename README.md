@@ -63,3 +63,4 @@ location /uploads/ {
 - 前端：单文件 HTML/CSS/JS，零依赖
 - 后端：FastAPI + StaticFiles
 - AI：MiMo V2.5（识图）+ 无音科技（生图）
+
