@@ -5,102 +5,134 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>家具推广图生成器</title>
 <style>
-:root{--bg:#0d1117;--card:#161b22;--border:#30363d;--accent:#58a6ff;--green:#3fb950;--text:#e6edf3;--dim:#8b949e}
+:root{--bg:#0d1117;--card:#161b22;--border:#30363d;--accent:#58a6ff;--green:#3fb950;--text:#e6edf3;--dim:#8b949e;--red:#f85149;--orange:#d2991d}
 *{margin:0;padding:0;box-sizing:border-box}
 body{background:var(--bg);color:var(--text);font-family:-apple-system,BlinkMacSystemFont,"PingFang SC","Microsoft YaHei",sans-serif;min-height:100vh}
-header{padding:24px 40px;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px}
-header h1{font-size:20px;font-weight:600}header h1 span{color:var(--accent)}
-.container{max-width:900px;margin:0 auto;padding:40px 20px}
-.upload-zone{border:2px dashed var(--border);border-radius:12px;padding:60px 20px;text-align:center;cursor:pointer;transition:all .2s;margin-bottom:16px}
-.upload-zone:hover,.drag{border-color:var(--accent);background:rgba(88,166,255,0.03)}
-.upload-zone .icon{font-size:48px;margin-bottom:8px}
-.upload-zone .title{font-size:16px;font-weight:500;margin-bottom:4px}
-.upload-zone .hint{font-size:13px;color:var(--dim)}
+header{padding:20px 28px;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px}
+header h1{font-size:18px;font-weight:600}header h1 span{color:var(--accent)}
+.container{max-width:900px;margin:0 auto;padding:32px 16px}
+
+.upload-zone{border:2px dashed var(--border);border-radius:12px;padding:48px 16px;text-align:center;cursor:pointer;transition:all .2s;margin-bottom:12px}
+.upload-zone:hover,.drag{border-color:var(--accent);background:rgba(88,166,255,0.04)}
+.upload-zone .icon{font-size:40px;margin-bottom:6px}
+.upload-zone .title{font-size:15px;font-weight:500;margin-bottom:2px}
+.upload-zone .hint{font-size:12px;color:var(--dim)}
 .upload-zone input{display:none}
-.preview-row{display:flex;gap:12px;margin-bottom:20px;flex-wrap:wrap}
-.preview-card{flex:1;min-width:180px;background:var(--card);border:1px solid var(--border);border-radius:8px;padding:10px;text-align:center}
-.preview-card img{max-width:100%;max-height:180px;border-radius:4px;object-fit:contain}
-.preview-card .label{font-size:12px;color:var(--dim);margin-top:6px}
-.items-editor{background:var(--card);border:1px solid var(--border);border-radius:8px;padding:20px;margin-bottom:20px}
-.items-editor h3{font-size:15px;margin-bottom:12px;font-weight:500}
-.item-row{display:flex;gap:8px;align-items:center;margin-bottom:8px;flex-wrap:wrap}
-.item-row input{background:var(--bg);border:1px solid var(--border);color:var(--text);padding:8px 12px;border-radius:6px;font-size:14px;font-family:inherit}
-.item-row .model{flex:2;min-width:100px}
-.item-row .qty{width:60px}
-.item-row .dims{flex:2;min-width:100px}
-.item-row .del{background:none;border:none;color:#f85149;cursor:pointer;font-size:20px;padding:4px 8px}
-.add-btn{background:var(--border);border:none;color:var(--text);padding:6px 16px;border-radius:6px;cursor:pointer;font-size:13px}
+.upload-row{display:flex;gap:12px;flex-wrap:wrap}
+.upload-row .upload-zone{flex:1;min-width:200px}
+
+.preview-row{display:flex;gap:10px;margin-bottom:16px;flex-wrap:wrap}
+.preview-card{flex:1;min-width:150px;background:var(--card);border:1px solid var(--border);border-radius:8px;padding:8px;text-align:center}
+.preview-card img{max-width:100%;max-height:160px;border-radius:4px;object-fit:contain}
+.preview-card .label{font-size:11px;color:var(--dim);margin-top:4px}
+.preview-card .url{font-size:10px;color:var(--green);word-break:break-all;margin-top:2px}
+
+.scene-bar{display:flex;gap:8px;margin-bottom:16px;flex-wrap:wrap}
+.scene-btn{background:var(--card);border:1px solid var(--border);color:var(--text);padding:8px 16px;border-radius:20px;cursor:pointer;font-size:13px;transition:all .15s;white-space:nowrap}
+.scene-btn:hover{border-color:var(--accent)}
+.scene-btn.active{background:var(--accent);color:#fff;border-color:var(--accent)}
+
+.items-editor{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:20px;margin-bottom:16px}
+.items-editor h3{font-size:14px;margin-bottom:12px;font-weight:500;display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+.item-row{display:flex;gap:8px;align-items:center;margin-bottom:8px}
+.item-row input{background:var(--bg);border:1px solid var(--border);color:var(--text);padding:7px 10px;border-radius:6px;font-size:13px;font-family:inherit}
+.item-row .model{flex:3;min-width:80px}
+.item-row .qty{width:52px;text-align:center}
+.item-row .dims{flex:2;min-width:80px}
+.item-row .del{background:none;border:none;color:var(--red);cursor:pointer;font-size:18px;padding:2px 6px;line-height:1}
+.add-btn{background:var(--border);border:none;color:var(--text);padding:5px 14px;border-radius:6px;cursor:pointer;font-size:13px}
 .add-btn:hover{background:var(--accent);color:#fff}
+.btn-analyze{background:rgba(88,166,255,0.15);border:1px solid var(--accent);color:var(--accent);padding:5px 14px;border-radius:6px;cursor:pointer;font-size:13px}
+.btn-analyze:hover{background:var(--accent);color:#fff}
+.btn-analyze:disabled{opacity:.5}
+
 .btn{background:var(--accent);color:#fff;border:none;padding:14px 40px;border-radius:8px;font-size:16px;font-weight:600;cursor:pointer;width:100%}
 .btn:disabled{opacity:.5;cursor:not-allowed}
-.result{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:24px;margin-top:20px;display:none}
+
+.result{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:24px;margin-top:16px;display:none}
 .result.show{display:block}
 .result img{max-width:100%;border-radius:8px}
-.result .actions{margin-top:16px;display:flex;gap:12px}
+.result .meta{margin-top:12px;font-size:12px;color:var(--dim)}
+.result .actions{margin-top:16px;display:flex;gap:12px;flex-wrap:wrap}
 .result .actions a{background:var(--border);color:var(--text);padding:10px 24px;border-radius:6px;text-decoration:none;font-size:14px}
-.status{text-align:center;padding:12px;color:var(--dim);font-size:14px}
-.error{color:#f85149;text-align:center;padding:12px;display:none}
-.error.show{display:block}
-.spin{display:inline-block;width:16px;height:16px;border:2px solid var(--border);border-top-color:var(--accent);border-radius:50%;animation:s .6s linear infinite;margin-right:6px;vertical-align:middle}
+.result .actions a:hover{background:var(--dim)}
+
+.status-bar{text-align:center;padding:12px;font-size:13px}
+.status-bar .stage{color:var(--accent);font-weight:500}
+.status-bar .error{color:var(--red)}
+.status-bar .ok{color:var(--green)}
+.spin{display:inline-block;width:14px;height:14px;border:2px solid var(--border);border-top-color:var(--accent);border-radius:50%;animation:s .6s linear infinite;margin-right:6px;vertical-align:middle}
 @keyframes s{to{transform:rotate(360deg)}}
 </style>
 </head>
 <body>
 <header>
   <h1>家具<span>推广图</span>生成器</h1>
-  <span style="color:var(--dim);font-size:13px">上传产品图 → 编辑清单 → 生成办公室布局</span>
+  <span style="color:var(--dim);font-size:12px">上传 → VPS原图托管 → AI识别 → 选场景 → 生成</span>
 </header>
 <div class="container">
-  <div style="display:flex;gap:16px;flex-wrap:wrap">
-    <div class="upload-zone" id="productZone" style="flex:2">
-      <div class="icon">📦</div>
+
+  <div class="upload-row">
+    <div class="upload-zone" id="productZone">
+      <div class="icon">&#x1F4E6;</div>
       <div class="title">上传产品图</div>
       <div class="hint">拖拽家具产品目录图</div>
       <input type="file" id="productInput" accept="image/*">
     </div>
-    <div class="upload-zone" id="refZone" style="flex:1">
-      <div class="icon">🎨</div>
+    <div class="upload-zone" id="refZone">
+      <div class="icon">&#x1F3A8;</div>
       <div class="title">参照图（可选）</div>
-      <div class="hint">办公室风格参考</div>
+      <div class="hint">期望的风格/场景参考</div>
       <input type="file" id="refInput" accept="image/*">
     </div>
   </div>
 
   <div class="preview-row" id="previews"></div>
 
+  <div class="scene-bar" id="sceneBar"></div>
+
+  <button class="btn" id="oneBtn" onclick="doPipeline()" style="margin-bottom:16px">&#x26A1; 一键生成推广图</button>
+
   <div class="items-editor">
-    <h3>📋 家具清单 
-      <button class="add-btn" style="margin-left:12px" onclick="analyzeProduct()" id="analyzeBtn">🔍 AI 识别</button>
-      <span style="font-weight:300;font-size:11px;color:var(--dim);margin-left:8px">或手动编辑</span>
+    <h3>
+      &#x1F4CB; 家具清单
+      <button class="btn-analyze" id="analyzeBtn" onclick="analyzeProduct()">&#x1F50D; AI 识别</button>
+      <span style="font-weight:300;font-size:11px;color:var(--dim)">或手动编辑</span>
     </h3>
     <div id="itemsList"></div>
     <button class="add-btn" onclick="addItem()">+ 添加</button>
   </div>
 
-  <button class="btn" id="genBtn" onclick="doGenerate()">生成推广图</button>
+  <button class="btn" id="genBtn" onclick="doGenerate()" style="background:var(--card);border:1px solid var(--accent);color:var(--accent)">仅生成推广图（用已有清单）</button>
 
-  <div class="status" id="status"></div>
-  <div class="error" id="error"></div>
+  <div class="status-bar" id="status"></div>
 
   <div class="result" id="result">
-    <h3 style="margin-bottom:16px;font-weight:500">✅ 生成完成</h3>
+    <h3 style="margin-bottom:16px;font-weight:500">&#x2705; 生成完成 — <span id="sceneLabel"></span></h3>
     <img id="resultImg" src="" alt="">
+    <div class="meta" id="resultMeta"></div>
     <div class="actions">
-      <a id="dlBtn" href="#" download>下载</a>
-      <a href="#" onclick="document.getElementById('result').classList.remove('show')">重新生成</a>
+      <a id="dlBtn" href="#" download>下载图片</a>
+      <a href="#" onclick="resetResult()">重新生成</a>
     </div>
   </div>
 </div>
 
 <script>
-// Dynamic base URL: use same origin in production, VPS API otherwise
-const BASE = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' 
-    ? 'http://localhost:8892' 
-    : window.location.hostname.includes('github.io')
-        ? 'http://darben.top'   // VPS API (nginx proxies /api/ to backend)
-        : window.location.protocol + '//' + window.location.hostname;
-let productFile = null, refFile = null;
+// ── Config ──────────────────────────────────────────────
+const BASE = (function(){
+    const h = window.location.hostname;
+    if (h === "localhost" || h === "127.0.0.1" || !h) return "http://localhost:8892";
+    const port = window.location.port;
+    return window.location.protocol + "//" + h + (port ? ":" + port : "");
+})();
 
+// ── State ───────────────────────────────────────────────
+let productFile = null, productDataUrl = null, productVpsUrl = null;
+let refFile = null, refDataUrl = null, refVpsUrl = null;
+let activeScene = 'office';
+
+// ── Init ────────────────────────────────────────────────
 document.getElementById('productZone').onclick = ()=>document.getElementById('productInput').click();
 document.getElementById('refZone').onclick = ()=>document.getElementById('refInput').click();
 
@@ -116,16 +148,97 @@ document.getElementById('refZone').onclick = ()=>document.getElementById('refInp
 document.getElementById('productInput').onchange = e=>setProduct(e.target.files[0]);
 document.getElementById('refInput').onchange = e=>setRef(e.target.files[0]);
 
-function setProduct(f){productFile=f;updatePreview()}
-function setRef(f){refFile=f;updatePreview()}
+fetch(BASE+'/api/scenes')
+  .then(r=>r.json())
+  .then(d=>{if(d.ok) renderScenes(d.scenes);})
+  .catch(()=>{
+    renderScenes([
+      {id:'office',name:'开放办公区',description:'明亮现代白墙木地板'},
+      {id:'meeting',name:'会议室',description:'深色会议桌皮质座椅'},
+      {id:'showroom',name:'展厅陈列',description:'高端灯光独立陈列'},
+      {id:'home',name:'居家书房',description:'温馨书架暖色灯光'},
+      {id:'creative',name:'创意工作室',description:'工业风loft活泼氛围'},
+    ]);
+  });
+
+function renderScenes(scenes){
+  const bar = document.getElementById('sceneBar');
+  scenes.forEach(s=>{
+    const btn = document.createElement('button');
+    btn.className = 'scene-btn' + (s.id===activeScene ? ' active' : '');
+    btn.textContent = s.name;
+    btn.title = s.description;
+    btn.onclick = ()=>{ activeScene=s.id; bar.querySelectorAll('.scene-btn').forEach(b=>b.classList.remove('active')); btn.classList.add('active'); };
+    bar.appendChild(btn);
+  });
+}
+
+// ── File selection + readAsDataURL ──────────────────────
+function readFileAsDataUrl(file) {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => resolve(reader.result);
+    reader.onerror = reject;
+    reader.readAsDataURL(file);
+  });
+}
+
+async function setProduct(f) {
+  productFile = f;
+  productDataUrl = await readFileAsDataUrl(f);
+  productVpsUrl = null;  // reset — need re-upload
+  updatePreview();
+}
+
+async function setRef(f) {
+  refFile = f;
+  refDataUrl = await readFileAsDataUrl(f);
+  refVpsUrl = null;
+  updatePreview();
+}
+
 function updatePreview(){
   const p=document.getElementById('previews');
   let h='';
-  if(productFile) h+=`<div class="preview-card"><img src="${URL.createObjectURL(productFile)}"><div class="label">产品图</div></div>`;
-  if(refFile) h+=`<div class="preview-card"><img src="${URL.createObjectURL(refFile)}"><div class="label">参照图</div></div>`;
+  if(productFile) h+=`<div class="preview-card"><img src="${URL.createObjectURL(productFile)}"><div class="label">产品图</div>${productVpsUrl?`<div class="url">已上传 VPS</div>`:''}</div>`;
+  if(refFile) h+=`<div class="preview-card"><img src="${URL.createObjectURL(refFile)}"><div class="label">参照图</div>${refVpsUrl?`<div class="url">已上传 VPS</div>`:''}</div>`;
   p.innerHTML = h;
 }
 
+// ── Upload to VPS ───────────────────────────────────────
+async function uploadToVps(){
+  const images = [];
+  if (productDataUrl && !productVpsUrl) images.push({dataUrl: productDataUrl});
+  if (refDataUrl && !refVpsUrl) images.push({dataUrl: refDataUrl});
+  if (images.length === 0) return true; // already uploaded
+
+  const s = document.getElementById('status');
+  s.innerHTML = '<span class="spin"></span><span class="stage">上传原图到 VPS（零压缩）...</span>';
+
+  try {
+    const r = await fetch(BASE+'/api/upload', {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({images})
+    });
+    const d = await r.json();
+    if (!d.ok) {
+      status(d.error || '上传失败', 'error');
+      return false;
+    }
+    let idx = 0;
+    if (productDataUrl && !productVpsUrl) { productVpsUrl = d.urls[idx++]; }
+    if (refDataUrl && !refVpsUrl) { refVpsUrl = d.urls[idx++]; }
+    updatePreview();
+    return true;
+  } catch(e) {
+    status('上传网络错误: ' + (e.message || e), 'error');
+    console.error('Upload error:', e);
+    return false;
+  }
+}
+
+// ── Items ───────────────────────────────────────────────
 function getItems(){
   return Array.from(document.querySelectorAll('.item-row')).map(r=>({
     model: r.querySelector('.model').value||'furniture',
@@ -139,51 +252,172 @@ function addItem(m='',q=1,d=''){
   document.getElementById('itemsList').appendChild(div);
 }
 
+// ── Analyze ─────────────────────────────────────────────
 async function analyzeProduct(){
-  if(!productFile) return;
-  const s=document.getElementById('status'), b=document.getElementById('analyzeBtn');
-  s.innerHTML='<span class="spin"></span>识别中...'; b.disabled=true;
-  const fd=new FormData();fd.append('product',productFile);
+  if(!productDataUrl){status('请先上传产品图','error');return}
+  const b=document.getElementById('analyzeBtn');
+  b.disabled=true;
+  const s=document.getElementById('status');
+  s.innerHTML='<span class="spin"></span><span class="stage">AI 识别中...</span>';
+
   try{
-    const r=await fetch(BASE+'/api/analyze',{method:'POST',body:fd});
+    const r=await fetch(BASE+'/api/analyze',{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({data_url: productDataUrl})
+    });
     const d=await r.json();
-    if(!d.ok){s.innerHTML='识别失败';b.disabled=false;return}
+    if(!d.ok){
+      status(d.error||'识别失败','error');
+      b.disabled=false;return;
+    }
     if(d.items && d.items.length>0 && d.items[0].model!=='furniture'){
       document.getElementById('itemsList').innerHTML='';
       d.items.forEach(i=>addItem(i.model||'',i.qty||1,i.dims||''));
-      s.innerHTML='✅ 已识别 '+d.items.length+' 件';
+      status(`识别到 ${d.items.length} 件家具，请核对后生成`,'ok');
     }else{
-      s.innerHTML='⚠️ 未能自动识别，请手动编辑';
+      status('未识别到家具，请手动编辑。AI返回: '+(d.raw_analysis||'空').slice(0,120),'error');
     }
-  }catch(e){s.innerHTML='网络错误'}  
+  }catch(e){
+    status('网络错误','error');
+  }
   b.disabled=false;
 }
 
+// ── Generate ────────────────────────────────────────────
 async function doGenerate(){
-  if(!productFile){alert('请先上传产品图');return}
-  const btn=document.getElementById('genBtn'), s=document.getElementById('status');
-  btn.disabled=true;btn.textContent='生成中...';document.getElementById('error').classList.remove('show');
-  document.getElementById('result').classList.remove('show');
-  s.innerHTML='<span class="spin"></span>AI 正在设计办公室...（约1分钟）';
+  if(!productFile){status('请先上传产品图','error');return}
+  const items = getItems();
+  if(items.length===0 || items.every(i=>i.model==='furniture')){
+    status('请先添加至少一件家具','error');return;
+  }
 
-  const fd=new FormData();
-  fd.append('product',productFile);
-  fd.append('items',JSON.stringify(getItems()));
-  if(refFile) fd.append('reference',refFile);
+  // Upload to VPS first
+  if (!await uploadToVps()) return;
+  if (!productVpsUrl) { status('产品图上传 VPS 失败', 'error'); return; }
+
+  const btn=document.getElementById('genBtn');
+  btn.disabled=true; btn.textContent='生成中...';
+  document.getElementById('result').classList.remove('show');
+
+  const s=document.getElementById('status');
+  s.innerHTML='<span class="spin"></span><span class="stage">正在生成场景布局...</span> <span style="color:var(--dim)">约1-5分钟</span>';
+
   try{
-    const r=await fetch(BASE+'/api/generate',{method:'POST',body:fd});
+    const r=await fetch(BASE+'/api/generate',{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({
+        product_url: productVpsUrl,
+        ref_url: refVpsUrl || '',
+        items, scene: activeScene
+      })
+    });
     const d=await r.json();
     if(d.ok){
       document.getElementById('resultImg').src=d.image_url;
       document.getElementById('dlBtn').href=d.image_url;
+      document.getElementById('sceneLabel').textContent=
+        activeScene==='office'?'开放办公区':activeScene==='meeting'?'会议室':
+        activeScene==='showroom'?'展厅陈列':activeScene==='home'?'居家书房':'创意工作室';
+      document.getElementById('resultMeta').textContent = `共 ${d.total} 件家具 | 场景: ${d.scene}`;
       document.getElementById('result').classList.add('show');
-      s.innerHTML='✅ 完成';
-    }else{s.innerHTML='';document.getElementById('error').textContent='❌ '+(d.error||'失败');document.getElementById('error').classList.add('show')}
-  }catch(e){s.innerHTML='';document.getElementById('error').textContent='❌ 网络错误';document.getElementById('error').classList.add('show')}
-  btn.disabled=false;btn.textContent='生成推广图';
+      status('生成完成','ok');
+    }else{
+      status(d.error||'生成失败','error');
+      if(d.prompt) console.log('Prompt:', d.prompt);
+    }
+  }catch(e){
+    status('网络错误','error');
+  }
+  btn.disabled=false;btn.textContent='仅生成推广图（用已有清单）';
 }
 
-// Default items
+// ── Pipeline ────────────────────────────────────────────
+async function doPipeline(){
+  if(!productFile){status('请先上传产品图','error');return}
+
+  const oneBtn=document.getElementById('oneBtn'), genBtn=document.getElementById('genBtn');
+  oneBtn.disabled=true; genBtn.disabled=true;
+  oneBtn.textContent='上传 + 识别 + 生成中...';
+  document.getElementById('result').classList.remove('show');
+
+  const s=document.getElementById('status');
+
+  try{
+    // Step 1: Upload to VPS
+    s.innerHTML='<span class="spin"></span><span class="stage">上传原图到 VPS（零压缩）...</span>';
+    if (!await uploadToVps()) {
+      oneBtn.disabled=false; genBtn.disabled=false;
+      oneBtn.textContent='⚡ 一键生成推广图';
+      return;
+    }
+    if (!productVpsUrl) { status('产品图上传失败', 'error'); return; }
+
+    // Step 2: Analyze
+    s.innerHTML='<span class="spin"></span><span class="stage">AI 识别家具中...</span>';
+    const ar=await fetch(BASE+'/api/analyze',{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({data_url: productDataUrl})
+    });
+    const ad=await ar.json();
+    if(!ad.ok){
+      status('识别失败: '+(ad.error||'未知错误'),'error');
+      oneBtn.disabled=false; genBtn.disabled=false;
+      oneBtn.textContent='⚡ 一键生成推广图';
+      return;
+    }
+    const items = ad.items && ad.items.length>0 && ad.items[0].model!=='furniture' ? ad.items : getItems();
+    document.getElementById('itemsList').innerHTML='';
+    items.forEach(i=>addItem(i.model||'',i.qty||1,i.dims||''));
+    status(`识别到 ${items.length} 件，开始生成...`,'stage');
+
+    // Step 3: Generate (product already on VPS)
+    s.innerHTML='<span class="spin"></span><span class="stage">正在生成场景布局...</span> <span style="color:var(--dim)">约1-5分钟</span>';
+    const gr=await fetch(BASE+'/api/generate',{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({
+        product_url: productVpsUrl,
+        ref_url: refVpsUrl || '',
+        items, scene: activeScene
+      })
+    });
+    const gd=await gr.json();
+    if(gd.ok){
+      document.getElementById('resultImg').src=gd.image_url;
+      document.getElementById('dlBtn').href=gd.image_url;
+      document.getElementById('sceneLabel').textContent=
+        activeScene==='office'?'开放办公区':activeScene==='meeting'?'会议室':
+        activeScene==='showroom'?'展厅陈列':activeScene==='home'?'居家书房':'创意工作室';
+      document.getElementById('resultMeta').textContent = `共 ${gd.total} 件家具 | 场景: ${gd.scene}`;
+      document.getElementById('result').classList.add('show');
+      status('一键生成完成','ok');
+    }else{
+      status(gd.error||'生成失败','error');
+      if(gd.prompt) console.log('Prompt:', gd.prompt);
+    }
+  }catch(e){
+    status('网络错误','error');
+  }
+  oneBtn.disabled=false; genBtn.disabled=false;
+  oneBtn.textContent='⚡ 一键生成推广图';
+}
+
+function resetResult(){
+  document.getElementById('result').classList.remove('show');
+  status('','');
+}
+
+function status(msg, type){
+  const el = document.getElementById('status');
+  if(!msg){el.innerHTML='';return}
+  const cls = type==='error'?'error':type==='ok'?'ok':'stage';
+  el.innerHTML = `<span class="${cls}">${msg}</span>`;
+}
+
+// ── Default items ───────────────────────────────────────
 addItem('1501办公桌',1,'3200*2200*760');
 addItem('D5515皮椅',2,'620*620*990');
 addItem('A5515皮椅',1,'640*640*1180');

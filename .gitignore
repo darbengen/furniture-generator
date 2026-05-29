@@ -1,1 +1,6 @@
-venv/\n*.pyc\napi.log\n__pycache__/
+venv/
+*.pyc
+api.log
+__pycache__/
+.env
+uploads/
