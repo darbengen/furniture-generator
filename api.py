@@ -1,9 +1,9 @@
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI, HTTPException, Request
 from fastapi.responses import JSONResponse
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel
-import requests, time, base64, os, json, uuid, re
+import requests, time, base64, os, json, uuid, re, subprocess, hmac, hashlib
 
 # ── Load .env ──────────────────────────────────────────────────
 def _load_dotenv(path):
@@ -27,6 +27,7 @@ LOCAL_HOST = os.environ.get("LOCAL_HOST", "http://localhost:8892")
 X2_UPLOAD_URL = os.environ.get("X2_UPLOAD_URL", "http://124.223.42.124:8891/upload")
 X2_SECRET = os.environ.get("X2_SECRET", "-1xweDVeOQrxgXBfgcTUMgxBH9GOhIP8")
 PUBLIC_BASE = os.environ.get("PUBLIC_BASE", "http://124.223.42.124:8891/uploads")
+DEPLOY_SECRET = os.environ.get("DEPLOY_SECRET", "")
 
 os.makedirs(UPLOAD_DIR, exist_ok=True)
 
@@ -509,6 +510,23 @@ async def pipeline(req: PipelineReq):
 
     return {"ok": True, "image_url": local_url, "prompt": prompt,
             "items": items, "total": total, "scene": req.scene}
+
+
+# ── Auto-deploy webhook ──────────────────────────────────────────
+@app.post("/api/deploy")
+async def webhook_deploy(request: Request):
+    if not DEPLOY_SECRET:
+        return JSONResponse(content={"ok": False, "error": "DEPLOY_SECRET not configured"}, status_code=500)
+    signature = request.headers.get("X-Hub-Signature-256", "")
+    body = await request.body()
+    expected = "sha256=" + hmac.new(DEPLOY_SECRET.encode(), body, hashlib.sha256).hexdigest()
+    if not hmac.compare_digest(signature, expected):
+        return JSONResponse(content={"ok": False, "error": "bad signature"}, status_code=403)
+    result = subprocess.run(
+        ["/opt/furniture-generator/deploy.sh"],
+        capture_output=True, text=True, timeout=120
+    )
+    return {"ok": result.returncode == 0, "stdout": result.stdout, "stderr": result.stderr}
 
 
 # ── Static files ─────────────────────────────────────────────────
